@@ -1,0 +1,24 @@
+{
+  "name": "es-backend",
+  "version": "1.0.0",
+  "description": "backend do trabalho de engenharia de software",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ofelipedidio/es-backend.git"
+  },
+  "author": "grupo 6",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ofelipedidio/es-backend/issues"
+  },
+  "homepage": "https://github.com/ofelipedidio/es-backend#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "mongoose": "^7.3.2"
+  }
+}
