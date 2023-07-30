@@ -29,7 +29,7 @@ exports.register = async (req, res) => {
         user_id: user._id,
         email,
       },
-      process.env.TOKEN_KEY,
+      "secret_key",
       {
         expiresIn: "2h",
       }
@@ -44,8 +44,6 @@ exports.register = async (req, res) => {
 exports.login = (req, res) => {};
 
 exports.findAll = (req, res) => {
-  console.log(req);
-
   User.find({})
     .then((data) => {
       res.send(data);
