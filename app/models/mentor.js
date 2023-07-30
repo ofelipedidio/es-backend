@@ -1,15 +1,17 @@
-var mongoose = require('mongoose');
-    const Mentor = mongoose.model(
-        "mentor",
-        mongoose.Schema(
+const mongoose = require("mongoose");
+const Mentor = mongoose.model(
+  "mentor",
+  mongoose.Schema(
+    {
+      nome: String,
+      cargo: String,
+      tags: [
         {
-            nome: String,
-            cargo: String,
-            tags: [{
-                type: String
-            }]
+          type: String,
         },
-        { timestamps: true }
-      )
-    );
+      ],
+    },
+    { timestamps: true }
+  )
+);
 module.exports = Mentor;
