@@ -21,6 +21,8 @@ app.get("/", (req, res) => {
   res.json({ message: "Hello world!" });
 });
 
+app.use(express.json());
+
 require("./app/routes/routes")(app);
 
 // set port, listen for requests
