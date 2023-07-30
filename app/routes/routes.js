@@ -9,6 +9,7 @@ module.exports = (app) => {
 
   // Retrieve all Mentors
   router.get("/", mentors.findAll);
+  router.get("/usuario", user.findAll);
 
   //Create a new User
   router.post("/register", user.register);
@@ -18,6 +19,8 @@ module.exports = (app) => {
 
   // Retrieve a single Mentor with id
   router.get("/:tag", mentors.findOne);
+
+  //Retrieve all users
 
   app.use("/api/mentors", router);
 };

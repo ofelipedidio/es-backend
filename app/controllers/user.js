@@ -1,5 +1,5 @@
 const User = require("../models/user");
-const bycrypt = require("bycrypt");
+const bycrypt = require("bcryptjs");
 const jsonwebtoken = require("jsonwebtoken");
 
 exports.register = async (req, res) => {
@@ -21,7 +21,7 @@ exports.register = async (req, res) => {
       first_name,
       last_name,
       email: email.toLowerCase(),
-      password: encryptedPassword(),
+      password: encryptedPassword,
     });
 
     const token = jsonwebtoken.sign(
@@ -29,7 +29,7 @@ exports.register = async (req, res) => {
         user_id: user._id,
         email,
       },
-      null,
+      process.env.TOKEN_KEY,
       {
         expiresIn: "2h",
       }
@@ -42,3 +42,17 @@ exports.register = async (req, res) => {
   }
 };
 exports.login = (req, res) => {};
+
+exports.findAll = (req, res) => {
+  console.log(req);
+
+  User.find({})
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res
+        .status(500)
+        .send({ message: err.message || "Erro ocorreu durante fetch!" });
+    });
+};
