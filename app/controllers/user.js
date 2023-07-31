@@ -24,6 +24,9 @@ exports.register = async (req, res) => {
       password: encryptedPassword,
     });
 
+    //Add logica de criar mentor if req.body.isMentor == true
+    //Add logica de criar mentee if req.body.isMentee == true
+
     authUser(user, email, res, 201);
   } catch (err) {
     console.log(err);
