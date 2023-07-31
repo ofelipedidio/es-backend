@@ -48,22 +48,23 @@ exports.login = async (req, res) => {
       res.status(400).send("Todo o login é necessario!");
     }
 
-    const user = await User.findOne({email});
+    const user = await User.findOne({ email });
 
-    if (user && (await bycript.compare(password, user.password))){
+    if (user && (await bycrypt.compare(password, user.password))) {
       const token = jsonwebtoken.sign(
-        {user_id:user._id,email},
+        { user_id: user._id, email },
         "secret_key",
         {
-          expiresIn:"2h"
+          expiresIn: "2h",
         }
-      )
+      );
 
       user.token = token;
 
       res.status(200).json(user);
+    } else {
+      res.status(400).send("Credenciais invalidas!");
     }
-    res.status(400).send("Credenciais invalidas!");
   } catch (err) {
     console.log(err);
   }
