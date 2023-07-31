@@ -1,6 +1,6 @@
 const User = require("../models/user");
 const bycrypt = require("bcryptjs");
-const jsonwebtoken = require("jsonwebtoken");
+const jwt = require("jsonwebtoken");
 
 exports.register = async (req, res) => {
   try {
@@ -60,7 +60,7 @@ exports.findAll = (req, res) => {
     });
 };
 function authUser(user, email, res, status) {
-  const token = jsonwebtoken.sign({ user_id: user._id, email }, "secret_key", {
+  const token = jwt.sign({ user_id: user._id, email }, "secret_key", {
     expiresIn: "2h",
   });
 

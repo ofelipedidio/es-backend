@@ -1,14 +1,15 @@
 module.exports = (app) => {
   const mentors = require("../controllers/mentor.js");
   const user = require("../controllers/user.js");
+  const auth = require("../middleware/auth.js");
 
   var router = require("express").Router();
 
   // Create a new Mentor
-  router.post("/mentors/", mentors.create);
+  router.post("/mentors/", auth, mentors.create);
 
   // Retrieve all Mentors
-  router.get("/mentors/", mentors.findAll);
+  router.get("/mentors/", auth, mentors.findAll);
   //Retrieve Users
   router.get("/usuario", user.findAll);
 
