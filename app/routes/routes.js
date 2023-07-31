@@ -5,10 +5,10 @@ module.exports = (app) => {
   var router = require("express").Router();
 
   // Create a new Mentor
-  router.post("/", mentors.create);
+  router.post("/mentors/", mentors.create);
 
   // Retrieve all Mentors
-  router.get("/", mentors.findAll);
+  router.get("/mentors/", mentors.findAll);
   //Retrieve Users
   router.get("/usuario", user.findAll);
 
@@ -19,7 +19,7 @@ module.exports = (app) => {
   router.post("/login", user.login);
 
   // Retrieve a single Mentor with id
-  router.get("/:tag", mentors.findOne);
+  router.get("/mentors/:tag", mentors.findOne);
 
-  app.use("/api/mentors", router);
+  app.use("/api", router);
 };
