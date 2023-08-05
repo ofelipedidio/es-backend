@@ -1,6 +1,6 @@
 const User = require("../models/user");
 const bycrypt = require("bcryptjs");
-const jsonwebtoken = require("jsonwebtoken");
+const jwt = require("jsonwebtoken");
 
 exports.register = async (req, res) => {
   try {
@@ -24,19 +24,10 @@ exports.register = async (req, res) => {
       password: encryptedPassword,
     });
 
-    const token = jsonwebtoken.sign(
-      {
-        user_id: user._id,
-        email,
-      },
-      "secret_key",
-      {
-        expiresIn: "2h",
-      }
-    );
-    user.token = token;
+    //Add logica de criar mentor if req.body.isMentor == true
+    //Add logica de criar mentee if req.body.isMentee == true
 
-    res.status(201).json(user);
+    authUser(user, email, res, 201);
   } catch (err) {
     console.log(err);
   }
@@ -51,17 +42,7 @@ exports.login = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (user && (await bycrypt.compare(password, user.password))) {
-      const token = jsonwebtoken.sign(
-        { user_id: user._id, email },
-        "secret_key",
-        {
-          expiresIn: "2h",
-        }
-      );
-
-      user.token = token;
-
-      res.status(200).json(user);
+      authUser(user, email, res, 200);
     } else {
       res.status(400).send("Credenciais invalidas!");
     }
@@ -81,3 +62,12 @@ exports.findAll = (req, res) => {
         .send({ message: err.message || "Erro ocorreu durante fetch!" });
     });
 };
+function authUser(user, email, res, status) {
+  const token = jwt.sign({ user_id: user._id, email }, "secret_key", {
+    expiresIn: "2h",
+  });
+
+  user.token = token;
+
+  res.status(status).json(user);
+}
