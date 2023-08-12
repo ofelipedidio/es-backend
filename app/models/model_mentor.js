@@ -3,7 +3,7 @@ const Mentor = mongoose.model(
   "mentor",
   mongoose.Schema(
     {
-      user_id: String,
+      user: { type: mongoose.Schema.Types.ObjectId, ref: "user" },
       cargo: String,
       tags: [
         {

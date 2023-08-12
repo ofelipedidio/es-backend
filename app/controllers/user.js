@@ -29,7 +29,7 @@ exports.register = async (req, res) => {
 
     if (req.body.isMentor) {
       await Mentor.create({
-        user_id: user._id,
+        user: user._id,
         cargo: req.body.cargo,
         tags: req.body.tags,
       });

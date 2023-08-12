@@ -1,5 +1,6 @@
 const db = require("../models");
 const Mentor = db.mentors;
+const User = db.users;
 
 // Create and Save a new Mentor
 exports.create = (req, res) => {
