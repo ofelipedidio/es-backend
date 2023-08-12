@@ -1,4 +1,5 @@
 const User = require("../models/user");
+const Mentor = require("../models/model_mentor");
 const bycrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
@@ -22,9 +23,19 @@ exports.register = async (req, res) => {
       last_name,
       email: email.toLowerCase(),
       password: encryptedPassword,
+      isMentor: req.body.isMentor,
+      isMentee: req.body.isMentee,
     });
 
-    //Add logica de criar mentor if req.body.isMentor == true
+    if (req.body.isMentor) {
+      await Mentor.create({
+        user_id: user._id,
+        cargo: req.body.cargo,
+        tags: req.body.tags,
+      });
+      console.log("Mentor criado");
+    }
+
     //Add logica de criar mentee if req.body.isMentee == true
 
     authUser(user, email, res, 201);

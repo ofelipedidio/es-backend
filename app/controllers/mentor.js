@@ -36,6 +36,7 @@ exports.findAll = (req, res) => {
   var condition = nome
     ? { nome: { $regex: new RegExp(nome), $options: "i" } }
     : {};
+  console.log(req);
 
   Mentor.find(condition)
     .then((data) => {
