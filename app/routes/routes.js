@@ -18,6 +18,15 @@ module.exports = app => {
   
     // Retrieve a single Mentor with id
     router.get("/mentors/:tag", mentors.findOne);
+
+  //Retrieve Users
+  router.get("/usuario", user.findAll);
+
+  //Create a new User
+  router.post("/register", user.register);
+
+  //Login
+  router.post("/login", user.login);
   
     app.use('/api', router);
   };
