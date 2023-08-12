@@ -52,21 +52,10 @@ exports.findAllPublished = (req, res) => {
 
 // Retrieve all Mentors from the database.
 exports.findAll = (req, res) => {
-  Mentor.find()
-    .populate("user")
+  User.find({ isMentor: { $eq: true } })
+    .populate("mentor")
     .exec()
     .then((data) => {
-      matched = [];
-      data.forEach((mentor) => {
-        const foundUser = User.findOne({ _id: mentor.user_id });
-        if (foundUser) {
-          matched.push({
-            ...foundUser,
-            ...mentor,
-          });
-        }
-      });
-
       res.send(data);
     })
     .catch((err) => {

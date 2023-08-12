@@ -28,12 +28,13 @@ exports.register = async (req, res) => {
     });
 
     if (req.body.isMentor) {
-      await Mentor.create({
+      const mentor = await Mentor.create({
         user: user._id,
         cargo: req.body.cargo,
         tags: req.body.tags,
       });
-      console.log("Mentor criado");
+      user.mentor = mentor._id;
+      user.save();
     }
 
     //Add logica de criar mentee if req.body.isMentee == true
