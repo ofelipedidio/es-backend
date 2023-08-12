@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema({
   isMentor: { type: Boolean, default: false },
   isMentee: { type: Boolean, default: false },
   token: { type: String },
+  mentor: { type: mongoose.Schema.Types.ObjectId, ref: "mentor" },
 });
 
 module.exports = mongoose.model("user", userSchema);
