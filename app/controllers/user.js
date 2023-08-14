@@ -5,39 +5,48 @@ const jwt = require("jsonwebtoken");
 
 exports.register = async (req, res) => {
   try {
-    const { first_name, last_name, email, password } = req.body;
+    const { first_name, last_name, email, password, isMentor, isMentee } =
+      req.body;
 
     if (!first_name && !last_name && !email && !password) {
       res.status(400).send("Necessario preencher todos os campos!");
     }
 
     const oldUser = await User.findOne({ email });
-
+    let user;
     if (oldUser) {
-      res.status(409).send("Usuario já existe!");
+      if ((oldUser.isMentor && isMentor) || (oldUser.isMentee && isMentee)) {
+        res.status(409).send("Usuario já existe!");
+      }
+      user = oldUser;
+    } else {
+      const encryptedPassword = await bycrypt.hash(password, 10);
+
+      user = await User.create({
+        first_name,
+        last_name,
+        email: email.toLowerCase(),
+        password: encryptedPassword,
+        isMentor: req.body.isMentor,
+        isMentee: req.body.isMentee,
+      });
     }
-    const encryptedPassword = await bycrypt.hash(password, 10);
 
-    const user = await User.create({
-      first_name,
-      last_name,
-      email: email.toLowerCase(),
-      password: encryptedPassword,
-      isMentor: req.body.isMentor,
-      isMentee: req.body.isMentee,
-    });
-
-    if (req.body.isMentor) {
+    if (isMentor) {
       const mentor = await Mentor.create({
         user: user._id,
         cargo: req.body.cargo,
         tags: req.body.tags,
       });
       user.mentor = mentor._id;
-      user.save();
+      user.isMentor = isMentor;
     }
 
-    //Add logica de criar mentee if req.body.isMentee == true
+    if (isMentee) {
+      user.isMentee = isMentee;
+    }
+
+    user.save();
 
     authUser(user, email, res, 201);
   } catch (err) {
