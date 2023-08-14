@@ -46,7 +46,7 @@ exports.register = async (req, res) => {
 };
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, isMentor, isMentee } = req.body;
     if (!(email && password)) {
       res.status(400).send("Todo o login é necessario!");
     }
@@ -54,7 +54,11 @@ exports.login = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (user && (await bycrypt.compare(password, user.password))) {
-      authUser(user, email, res, 200);
+      if ((user.isMentor && isMentor) || (user.isMentee && isMentee)) {
+        authUser(user, email, res, 200);
+      } else {
+        res.status(401).send("Não possui a role!");
+      }
     } else {
       res.status(400).send("Credenciais invalidas!");
     }
