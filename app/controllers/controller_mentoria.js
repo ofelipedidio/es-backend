@@ -15,7 +15,9 @@ exports.create = (req, res) => {
     mentorado: req.body.mentorado,
     duracao: req.body.duracao,
     formato: req.body.formato,
-    recompensa: req.body.recompensa
+    recompensa: req.body.recompensa,
+    mentor_email: req.body.mentor_email,
+    mentorado_email: req.body.mentorado_email
   });
 
   // Save Mentoria in the database
@@ -34,10 +36,9 @@ exports.create = (req, res) => {
 
 // Retrieve all Mentorias from the database.
 exports.findAll = (req, res) => {
-    const mentor = req.query.mentor;
-    var condition = mentor ? { mentor: { $regex: new RegExp(mentor), $options: "i" } } : {};
-  
-    Mentoria.find(condition)
+    const email = req.query.email;
+
+    Mentoria.find({$or:[{mentorado_email: email},{mentor_email: email}]})
       .then(data => {
         res.send(data);
       })
