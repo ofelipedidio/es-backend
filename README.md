@@ -6,4 +6,4 @@ Check out the front end of this project [here](https://github.com/ofelipedidio/e
 
 ## Diagrama ER
 
-![Diagrama ER](https://github.com/ofelipedidio/es-backend/blob/add-er-diagram/docs/diagrama_er.svg)
+![Diagrama ER](https://github.com/ofelipedidio/es-backend/blob/add-er-diagram/docs/diagrama_er.png)
