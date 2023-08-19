@@ -95,7 +95,7 @@ exports.delete = async (req, res) => {
 };
 
 exports.findAll = (req, res) => {
-  User.find({})
+  findAllUsers()
     .then((data) => {
       res.send(data);
     })
@@ -105,14 +105,15 @@ exports.findAll = (req, res) => {
         .send({ message: err.message || "Erro ocorreu durante fetch!" });
     });
 };
+// Foi necessario o uso de !=true ao invés ==false pois o mongoose aparentemente não salva os default nas tabelas
 async function findNonDeletedUserByEmail(email) {
-  return await User.findOne({ email, isDeleted: { $eq: false } });
+  return await User.findOne({ email, isDeleted: { $ne: true } });
 }
 async function findNonDeletedUserById(_id) {
-  return await User.findOne({ _id });
+  return await User.findOne({ _id, isDeleted: { $ne: true } });
 }
 async function findAllUsers() {
-  return await User.find({ isDeleted: { $eq: false } });
+  return await User.find({ isDeleted: { $ne: true } });
 }
 
 function authUser(user, email, res, status) {
