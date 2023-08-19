@@ -5,14 +5,13 @@ const jwt = require("jsonwebtoken");
 
 exports.register = async (req, res) => {
   try {
-    const { first_name, last_name, email, password, isMentor, isMentee } =
-      req.body;
+    const { name, birthDate, email, password, isMentor, isMentee } = req.body;
 
-    if (!first_name && !last_name && !email && !password) {
+    if (!name && !birthDate && !email && !password) {
       res.status(400).send("Necessario preencher todos os campos!");
     }
 
-    const oldUser = await User.findOne({ email });
+    const oldUser = await findNonDeletedUserByEmail(email);
     let user;
     if (oldUser) {
       if ((oldUser.isMentor && isMentor) || (oldUser.isMentee && isMentee)) {
@@ -23,12 +22,12 @@ exports.register = async (req, res) => {
       const encryptedPassword = await bycrypt.hash(password, 10);
 
       user = await User.create({
-        first_name,
-        last_name,
+        name,
+        birthDate,
         email: email.toLowerCase(),
         password: encryptedPassword,
-        isMentor: req.body.isMentor,
-        isMentee: req.body.isMentee,
+        isMentor,
+        isMentee,
       });
     }
 
@@ -60,9 +59,16 @@ exports.login = async (req, res) => {
       res.status(400).send("Todo o login é necessario!");
     }
 
-    const user = await User.findOne({ email });
+    let user = await findNonDeletedUserByEmail(email);
+
+    if (!user) {
+      res.status(404).send("User not found!");
+    }
 
     if (user && (await bycrypt.compare(password, user.password))) {
+      if (isMentor && user) {
+        user = await findNonDeletedUserByEmail(email).populate("mentor").exec();
+      }
       if ((user.isMentor && isMentor) || (user.isMentee && isMentee)) {
         authUser(user, email, res, 200);
       } else {
@@ -76,8 +82,20 @@ exports.login = async (req, res) => {
   }
 };
 
+exports.delete = async (req, res) => {
+  const { id } = req.body;
+  const user = await findNonDeletedUserById(id);
+  if (user) {
+    user.isDeleted = true;
+    user.save();
+    res.status(200).send();
+  } else {
+    res.status(404).send("User Not Found!");
+  }
+};
+
 exports.findAll = (req, res) => {
-  User.find({})
+  findAllUsers()
     .then((data) => {
       res.send(data);
     })
@@ -87,6 +105,38 @@ exports.findAll = (req, res) => {
         .send({ message: err.message || "Erro ocorreu durante fetch!" });
     });
 };
+
+exports.update = async (req, res) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email, isDeleted: { $ne: true } })
+    .populate("mentor")
+    .exec();
+  if (!user) {
+    res.status(404).send("User not found!");
+  } else {
+    User.findByIdAndUpdate(
+      req.body._id,
+      { $set: req.body },
+      { useFindAndModify: false }
+    ).then((data) => {
+      if (data) {
+        res.status(200).json(data);
+      }
+    });
+  }
+};
+
+// Foi necessario o uso de !=true ao invés ==false pois o mongoose aparentemente não salva os default nas tabelas
+async function findNonDeletedUserByEmail(email) {
+  return await User.findOne({ email, isDeleted: { $ne: true } });
+}
+async function findNonDeletedUserById(_id) {
+  return await User.findOne({ _id, isDeleted: { $ne: true } });
+}
+async function findAllUsers() {
+  return await User.find({ isDeleted: { $ne: true } });
+}
+
 function authUser(user, email, res, status) {
   const token = jwt.sign({ user_id: user._id, email }, "secret_key", {
     expiresIn: "2h",

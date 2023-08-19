@@ -1,13 +1,14 @@
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
-  first_name: { type: String, default: null },
-  last_name: { type: String, default: null },
+  name: { type: String, default: null },
+  birthDate: { type: Date, default: null },
   email: { type: String, unique: true },
   password: { type: String },
   isMentor: { type: Boolean, default: false },
   isMentee: { type: Boolean, default: false },
   token: { type: String },
+  isDeleted: { type: Boolean, default: false },
   mentor: { type: mongoose.Schema.Types.ObjectId, ref: "mentor" },
 });
 
