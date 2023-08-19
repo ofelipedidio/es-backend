@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema({
   isMentor: { type: Boolean, default: false },
   isMentee: { type: Boolean, default: false },
   token: { type: String },
+  isDeleted: { type: Boolean, default: false },
   mentor: { type: mongoose.Schema.Types.ObjectId, ref: "mentor" },
 });
 
