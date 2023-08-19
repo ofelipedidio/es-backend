@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema({
   isMentee: { type: Boolean, default: false },
   token: { type: String },
   mentor: { type: mongoose.Schema.Types.ObjectId, ref: "mentor" },
-});
+},
+{ timestamps: true });
 
 module.exports = mongoose.model("user", userSchema);

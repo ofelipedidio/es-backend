@@ -1,73 +1,89 @@
 const db = require("../models");
 const Mentor = db.mentors;
 const User = db.users;
-const Mentoria = db.mentoria;
+const Mentoria = db.mentorias;
 
-exports.create = (req, res) => {
-    // const start = new Date(res.body.start);
-    // const end = new Date(res.body.end);
+exports.generate = (req, res) => {
+    console.log(req.body);
+    const start = new Date(req.body.start);
+    const end = new Date(req.body.end);
+    console.log(start, end);
 
     // 1
     let qtd_usuario = null;
-    User.countDocuments({}, (err, count) => {
-        if (err) console.error(err);
+    User.countDocuments({}).then(count => {
         qtd_usuario = count;
-    });
+        console.log(count);
 
-    // 2
-    let qtd_mentorias = null;
-    Mentoria.countDocuments({
-        createdAt: {
-            $gte: start,
-            $lte: end
-        }
-    }, (err, count) => {
-        if (err) console.error(err);
-        qtd_mentorias = count;
-    });
 
-    // 3
-    // Duvida: usuarios criados no tempo ou total que existiam nesse tempo
-    // Taxa de mentorias
-    let qtd_usuario_tempo = null;
-    User.countDocuments({
-        createdAt: {
-            $lte: enddate
-        }
-    }, (err, count) => {
-        if (err) console.error(err);
-        qtd_usuario_tempo = count;
-    });
+        // 2
+        let qtd_mentorias = null;
+        Mentoria.countDocuments({
+            createdAt: {
+                $gte: start,
+                $lte: end
+            }
+        }).then(count => {
+            qtd_mentorias = count;
+            console.log(count);
+            // 3
+            // Duvida: usuarios criados no tempo ou total que existiam nesse tempo
+            // Taxa de mentorias
+            let qtd_usuario_tempo = null;
+            User.countDocuments({
+                createdAt: {    
+                    $lte: end
+                }
+            }).then(count => {
+                qtd_usuario_tempo = count;
+                console.log(count);
 
-    let taxa_mentorias = qtd_mentorias / qtd_usuario_tempo;
 
-    // 4
-    let qtd_experiencias = null;
-    Tag.countDocuments({
-        createdAt: {
-            $gte: start,
-            $lte: end
-        }
-    }, (err, count) => {
-        if (err) console.error(err);
-        qtd_experiencias = count;
-    });
+                let taxa_mentorias; 
 
-    // 5
-    // Duvida: quantidade abs no periodo ou no total (ate agora)?
-    let qtd_abs_experiencias = null;
-    Tag.countDocuments({}, (err, count) => {
-        if (err) console.error(err);
-        qtd_abs_experiencias = count;
-    });
+                if(qtd_usuario_tempo == 0)
+                {
+                    taxa_mentorias = -1;
+                }else
+                {
+                    taxa_mentorias = qtd_mentorias / qtd_usuario_tempo;
+                }
+                console.log(taxa_mentorias);
+                
 
-    const relatorio = {
-        qtd_usuario: qtd_usuario,
-        qtd_mentorias: qtd_mentorias,
-        taxa_mentorias: taxa_mentorias,
-        qtd_experiencias: qtd_experiencias,
-        qtd_abs_experiencias: qtd_abs_experiencias
-    }
+                // 4
+                let qtd_experiencias = -1;
+                // Tag.countDocuments({
+                //     createdAt: {
+                //         $gte: start,
+                //         $lte: end
+                //     }
+                // }).then(count => {
+                //     qtd_experiencias = count;
+                // }).catch(err => {});
 
-    res.status(200).send(relatorio);
+                // // 5
+                // // Duvida: quantidade abs no periodo ou no total (ate agora)?
+                let qtd_abs_experiencias = -1;
+                // Tag.countDocuments({}).then(count => {
+                //     qtd_abs_experiencias = count;
+                // }).catch(err => {});
+
+                const relatorio = {
+                    qtd_usuario: qtd_usuario,
+                    qtd_mentorias: qtd_mentorias,
+                    taxa_mentorias: taxa_mentorias,
+                    qtd_experiencias: qtd_experiencias,
+                    qtd_abs_experiencias: qtd_abs_experiencias
+                }
+
+                res.status(200).send(relatorio);
+
+
+            }).catch(err => { });
+
+        }).catch(err => { console.error(err) });
+
+    }).catch(err => { });
+
 };
