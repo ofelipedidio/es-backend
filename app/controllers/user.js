@@ -105,6 +105,27 @@ exports.findAll = (req, res) => {
         .send({ message: err.message || "Erro ocorreu durante fetch!" });
     });
 };
+
+exports.update = async (req, res) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email, isDeleted: { $ne: true } })
+    .populate("mentor")
+    .exec();
+  if (!user) {
+    res.status(404).send("User not found!");
+  } else {
+    User.findByIdAndUpdate(
+      req.body._id,
+      { $set: req.body },
+      { useFindAndModify: false }
+    ).then((data) => {
+      if (data) {
+        res.status(200).json(data);
+      }
+    });
+  }
+};
+
 // Foi necessario o uso de !=true ao invés ==false pois o mongoose aparentemente não salva os default nas tabelas
 async function findNonDeletedUserByEmail(email) {
   return await User.findOne({ email, isDeleted: { $ne: true } });
