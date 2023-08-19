@@ -13,6 +13,8 @@ module.exports = (app) => {
 
   router.get("/mentorias", mentorias.findAll);
 
+  router.put("/mentorias/:id", mentorias.update)
+
   // Retrieve all Mentors
   router.get("/mentors", mentors.findAll);
 
