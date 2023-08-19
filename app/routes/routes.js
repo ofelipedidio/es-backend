@@ -34,7 +34,7 @@ module.exports = (app) => {
   router.post("/delete", user.delete);
 
   //Update
-  router.post("/update", user.update);
+  router.put("/update", user.update);
 
   app.use("/api", router);
 };

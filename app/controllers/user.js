@@ -67,7 +67,7 @@ exports.login = async (req, res) => {
 
     if (user && (await bycrypt.compare(password, user.password))) {
       if (isMentor && user) {
-        user = await findNonDeletedUserByEmail(email).populate("mentor").exec();
+        user = await findMentorByEmail(email);
       }
       if ((user.isMentor && isMentor) || (user.isMentee && isMentee)) {
         authUser(user, email, res, 200);
@@ -107,22 +107,24 @@ exports.findAll = (req, res) => {
 };
 
 exports.update = async (req, res) => {
-  const { email } = req.body;
+  const { email, name, birthDate, mentor } = req.body;
   const user = await User.findOne({ email, isDeleted: { $ne: true } })
     .populate("mentor")
     .exec();
+
   if (!user) {
     res.status(404).send("User not found!");
   } else {
-    User.findByIdAndUpdate(
-      req.body._id,
-      { $set: req.body },
-      { useFindAndModify: false }
-    ).then((data) => {
-      if (data) {
-        res.status(200).json(data);
-      }
-    });
+    user.name = name;
+    user.email = email;
+    user.birthDate = birthDate;
+    if (user.isMentor) {
+      user.mentor.cargo = mentor.cargo;
+      user.mentor.tags = mentor.tags;
+      await user.mentor.save();
+    }
+    await user.save();
+    res.status(200).json(user);
   }
 };
 
@@ -135,6 +137,12 @@ async function findNonDeletedUserById(_id) {
 }
 async function findAllUsers() {
   return await User.find({ isDeleted: { $ne: true } });
+}
+
+async function findMentorByEmail(email) {
+  return await User.findOne({ email, isDeleted: { $ne: true } })
+    .populate("mentor")
+    .exec();
 }
 
 function authUser(user, email, res, status) {
