@@ -4,6 +4,9 @@ const User = db.users;
 const Mentoria = db.mentorias;
 
 exports.generate = (req, res) => {
+
+
+    console.log("==========================comecou request=============================================");
     console.log(req.body);
     const start = new Date(req.body.start);
     const end = new Date(req.body.end);
