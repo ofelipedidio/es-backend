@@ -10,6 +10,7 @@ exports.register = async (req, res) => {
 
     if (!first_name && !last_name && !email && !password) {
       res.status(400).send("Necessario preencher todos os campos!");
+      return;
     }
 
     const oldUser = await User.findOne({ email });
@@ -17,6 +18,7 @@ exports.register = async (req, res) => {
     if (oldUser) {
       if ((oldUser.isMentor && isMentor) || (oldUser.isMentee && isMentee)) {
         res.status(409).send("Usuario já existe!");
+        return;
       }
       user = oldUser;
     } else {
