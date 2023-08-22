@@ -5,7 +5,8 @@ const jwt = require("jsonwebtoken");
 
 exports.register = async (req, res) => {
   try {
-    const { name, birthDate, email, password, isMentor, isMentee } = req.body;
+    const { name, birthDate, email, password, isMentor, isMentee, isAdmin } =
+      req.body;
 
     if (!name && !birthDate && !email && !password) {
       res.status(400).send("Necessario preencher todos os campos!");
@@ -28,6 +29,7 @@ exports.register = async (req, res) => {
         password: encryptedPassword,
         isMentor,
         isMentee,
+        isAdmin,
       });
     }
 
@@ -45,6 +47,10 @@ exports.register = async (req, res) => {
       user.isMentee = isMentee;
     }
 
+    if (isAdmin) {
+      user.isAdmin = isAdmin;
+    }
+
     user.save();
 
     authUser(user, email, res, 201);
@@ -54,7 +60,7 @@ exports.register = async (req, res) => {
 };
 exports.login = async (req, res) => {
   try {
-    const { email, password, isMentor, isMentee } = req.body;
+    const { email, password, isMentor, isMentee, isAdmin } = req.body;
     if (!(email && password)) {
       res.status(400).send("Todo o login é necessario!");
     }
@@ -69,7 +75,11 @@ exports.login = async (req, res) => {
       if (isMentor && user) {
         user = await findMentorByEmail(email);
       }
-      if ((user.isMentor && isMentor) || (user.isMentee && isMentee)) {
+      if (
+        (user.isMentor && isMentor) ||
+        (user.isMentee && isMentee) ||
+        (user.isAdmin && isAdmin)
+      ) {
         authUser(user, email, res, 200);
       } else {
         res.status(401).send("Não possui a role!");

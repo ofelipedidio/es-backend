@@ -7,8 +7,9 @@ const userSchema = new mongoose.Schema({
   password: { type: String },
   isMentor: { type: Boolean, default: false },
   isMentee: { type: Boolean, default: false },
-  token: { type: String },
   isDeleted: { type: Boolean, default: false },
+  isAdmin: { type: Boolean, default: false },
+  token: { type: String },
   mentor: { type: mongoose.Schema.Types.ObjectId, ref: "mentor" },
 });
 
