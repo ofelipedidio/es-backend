@@ -60,7 +60,7 @@ exports.register = async (req, res) => {
 };
 exports.login = async (req, res) => {
   try {
-    const { email, password, isMentor, isMentee } = req.body;
+    const { email, password, isMentor, isMentee, isAdmin } = req.body;
     if (!(email && password)) {
       res.status(400).send("Todo o login é necessario!");
     }
@@ -75,7 +75,11 @@ exports.login = async (req, res) => {
       if (isMentor && user) {
         user = await findMentorByEmail(email);
       }
-      if ((user.isMentor && isMentor) || (user.isMentee && isMentee) || (user.isAdmin && isAdmin)) {
+      if (
+        (user.isMentor && isMentor) ||
+        (user.isMentee && isMentee) ||
+        (user.isAdmin && isAdmin)
+      ) {
         authUser(user, email, res, 200);
       } else {
         res.status(401).send("Não possui a role!");
