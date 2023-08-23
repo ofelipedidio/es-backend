@@ -10,7 +10,9 @@ var mongoose = require('mongoose');
             recompensa: String,
             mentor_email: String,
             mentorado_email: String,
-            status: String
+            status: String,
+            rating_mentor: String,
+            rating_mentorado: String,
         },
         { timestamps: true }
       )
