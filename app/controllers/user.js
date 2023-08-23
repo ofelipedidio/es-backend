@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 
 exports.register = async (req, res) => {
   try {
-    const { name, birthDate, email, password, isMentor, isMentee, birthDate, isAdmin } = req.body;
+    const { name, birthDate, email, password, isMentor, isMentee, isAdmin } = req.body;
 
     if (!name && !birthDate && !email && !password) {
       res.status(400).send("Necessario preencher todos os campos!");
