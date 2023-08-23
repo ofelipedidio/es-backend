@@ -39,12 +39,18 @@ module.exports = (app) => {
 
   //Login
   router.post("/tags/register", tags.register);
+
+  //Login
+  router.post("/tags/delete", tags.delete);
       
   //findAll
   router.get("/tags/findAll", tags.findAll);
 
+  //findAll
+  router.get("/tags/findAllUn", tags.findAllUntreated);
+
   //Update
-  router.put("/tags/decide", tags.decide);
+  router.post("/tags/treat", tags.treat);
 
   app.use("/api", router);
 };

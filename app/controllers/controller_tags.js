@@ -7,14 +7,10 @@ exports.register = async (req, res) => {
   try {
     const { nameTag, treated } = req.body;
 
-    if (!nameTag) {
-      res.status(400).send("Necessario preencher todos os campos!");
-    }
-
     const oldTag = await findExistingTag(nameTag);
     let user;
     if (oldTag) {
-        res.status(409).send("Tag já existe!");
+        res.status(409).send("Tag já existente ou sob análise");
       user = oldTag;
     } else {
 
@@ -52,6 +48,18 @@ exports.findAll = (req, res) => {
     });
 };
 
+exports.findAllUntreated = async (req, res) => {
+  findAllUntreatedTags()
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res
+        .status(500)
+        .send({ message: err.message || "Erro ocorreu durante fetch!" });
+    });
+};
+
 exports.treat = async (req, res) => {
   const { nameTag, treated } = req.body;
   const user = await Tags.findOne({ nameTag });
@@ -66,14 +74,6 @@ exports.treat = async (req, res) => {
   }
 };
 
-//criar função para 
-exports.decide = async (req, res) => {
-
-    // admin vai decidir se tag vai ser aprovada ou não,
-    // Caso seja vai chamar a função treat pra a tag em questão
-    // Caso não seja aceita, chama a função delete
-
-};
 
 // Foi necessario o uso de !=true ao invés ==false pois o mongoose aparentemente não salva os default nas tabelas
 async function findExistingTag(nameTag) {
@@ -81,7 +81,11 @@ async function findExistingTag(nameTag) {
 }
 
 async function findAllTags() {
-  return await Tags.find();
+  return await Tags.find( {treated: true });
+}
+
+async function findAllUntreatedTags() {
+  return await Tags.find( {treated: false} );
 }
 
 
