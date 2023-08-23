@@ -18,7 +18,9 @@ exports.create = (req, res) => {
     recompensa: req.body.recompensa,
     mentor_email: req.body.mentor_email,
     mentorado_email: req.body.mentorado_email,
-    status: req.body.status
+    status: req.body.status,
+    rating_mentor: req.body.rating_mentor,
+    rating_mentorado: req.body.rating_mentorado,
   });
 
   // Save Mentoria in the database
