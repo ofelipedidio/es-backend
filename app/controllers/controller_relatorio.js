@@ -14,10 +14,11 @@ exports.generate = (req, res) => {
 
     // 1
     let qtd_usuario = null;
-    User.countDocuments({}).then(count => {
+    User.countDocuments({}).catch(err => {
+        console.log('Could not count users');
+    }).then(count => {
         qtd_usuario = count;
         console.log(count);
-
 
         // 2
         let qtd_mentorias = null;
@@ -87,6 +88,6 @@ exports.generate = (req, res) => {
 
         }).catch(err => { console.error(err) });
 
-    }).catch(err => { });
+    });
 
 };
