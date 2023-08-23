@@ -14,7 +14,7 @@ module.exports = (app) => {
 
   router.get("/mentorias", mentorias.findAll);
 
-  router.put("/mentorias/:id", mentorias.update)
+  router.put("/mentorias/:id", mentorias.update);
 
   // Retrieve all Mentors
   router.get("/mentors", mentors.findAll);
@@ -33,6 +33,12 @@ module.exports = (app) => {
 
   // Relatorio
   router.post("/relatorio", relatorio.generate);
+
+  //Delete
+  router.post("/delete", user.delete);
+
+  //Update
+  router.put("/update", user.update);
 
   app.use("/api", router);
 };

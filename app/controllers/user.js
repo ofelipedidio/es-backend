@@ -5,14 +5,13 @@ const jwt = require("jsonwebtoken");
 
 exports.register = async (req, res) => {
   try {
-    const { first_name, last_name, email, password, isMentor, isMentee, birthDate } =
-      req.body;
+    const { name, birthDate, email, password, isMentor, isMentee, birthDate, isAdmin } = req.body;
 
-    if (!first_name && !last_name && !email && !password) {
+    if (!name && !birthDate && !email && !password) {
       res.status(400).send("Necessario preencher todos os campos!");
     }
 
-    const oldUser = await User.findOne({ email });
+    const oldUser = await findNonDeletedUserByEmail(email);
     let user;
     if (oldUser) {
       if ((oldUser.isMentor && isMentor) || (oldUser.isMentee && isMentee)) {
@@ -23,13 +22,14 @@ exports.register = async (req, res) => {
       const encryptedPassword = await bycrypt.hash(password, 10);
 
       user = await User.create({
-        first_name,
-        last_name,
+        name,
+        birthDate,
         email: email.toLowerCase(),
           birthDate: birthDate,
         password: encryptedPassword,
-        isMentor: req.body.isMentor,
-        isMentee: req.body.isMentee,
+        isMentor,
+        isMentee,
+        isAdmin,
       });
     }
 
@@ -47,6 +47,10 @@ exports.register = async (req, res) => {
       user.isMentee = isMentee;
     }
 
+    if (isAdmin) {
+      user.isAdmin = isAdmin;
+    }
+
     user.save();
 
     authUser(user, email, res, 201);
@@ -57,15 +61,26 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   try {
       console.log(req.body);
-    const { email, password, isMentor, isMentee } = req.body;
+      const { email, password, isMentor, isMentee, isAdmin } = req.body;
     if (!(email && password)) {
       res.status(400).send("Todo o login é necessario!");
     }
 
-    const user = await User.findOne({ email });
+    let user = await findNonDeletedUserByEmail(email);
+
+    if (!user) {
+      res.status(404).send("User not found!");
+    }
 
     if (user && (await bycrypt.compare(password, user.password))) {
-      if ((user.isMentor && isMentor) || (user.isMentee && isMentee)) {
+      if (isMentor && user) {
+        user = await findMentorByEmail(email);
+      }
+      if (
+        (user.isMentor && isMentor) ||
+        (user.isMentee && isMentee) ||
+        (user.isAdmin && isAdmin)
+      ) {
         authUser(user, email, res, 200);
       } else {
         res.status(401).send("Não possui a role!");
@@ -78,8 +93,20 @@ exports.login = async (req, res) => {
   }
 };
 
+exports.delete = async (req, res) => {
+  const { id } = req.body;
+  const user = await findNonDeletedUserById(id);
+  if (user) {
+    user.isDeleted = true;
+    user.save();
+    res.status(200).send();
+  } else {
+    res.status(404).send("User Not Found!");
+  }
+};
+
 exports.findAll = (req, res) => {
-  User.find({})
+  findAllUsers()
     .then((data) => {
       res.send(data);
     })
@@ -89,6 +116,46 @@ exports.findAll = (req, res) => {
         .send({ message: err.message || "Erro ocorreu durante fetch!" });
     });
 };
+
+exports.update = async (req, res) => {
+  const { email, name, birthDate, mentor } = req.body;
+  const user = await User.findOne({ email, isDeleted: { $ne: true } })
+    .populate("mentor")
+    .exec();
+
+  if (!user) {
+    res.status(404).send("User not found!");
+  } else {
+    user.name = name;
+    user.email = email;
+    user.birthDate = birthDate;
+    if (user.isMentor) {
+      user.mentor.cargo = mentor.cargo;
+      user.mentor.tags = mentor.tags;
+      await user.mentor.save();
+    }
+    await user.save();
+    res.status(200).json(user);
+  }
+};
+
+// Foi necessario o uso de !=true ao invés ==false pois o mongoose aparentemente não salva os default nas tabelas
+async function findNonDeletedUserByEmail(email) {
+  return await User.findOne({ email, isDeleted: { $ne: true } });
+}
+async function findNonDeletedUserById(_id) {
+  return await User.findOne({ _id, isDeleted: { $ne: true } });
+}
+async function findAllUsers() {
+  return await User.find({ isDeleted: { $ne: true } });
+}
+
+async function findMentorByEmail(email) {
+  return await User.findOne({ email, isDeleted: { $ne: true } })
+    .populate("mentor")
+    .exec();
+}
+
 function authUser(user, email, res, status) {
   const token = jwt.sign({ user_id: user._id, email }, "secret_key", {
     expiresIn: "2h",

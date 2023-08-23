@@ -4,7 +4,7 @@ const Mentor = mongoose.model(
   mongoose.Schema(
     {
       user: { type: mongoose.Schema.Types.ObjectId, ref: "user" },
-      cargo: String,
+      cargo: { type: String, default: "" },
       tags: [
         {
           type: String,
