@@ -3,6 +3,7 @@ module.exports = (app) => {
   const mentors = require("../controllers/controller_mentor.js");
   const mentorias = require("../controllers/controller_mentoria.js");
   const auth = require("../middleware/auth.js");
+  const relatorio = require("../controllers/controller_relatorio.js");
 
   var router = require("express").Router();
 
@@ -29,6 +30,9 @@ module.exports = (app) => {
 
   //Login
   router.post("/login", user.login);
+
+  // Relatorio
+  router.post("/relatorio", relatorio.generate);
 
   //Delete
   router.post("/delete", user.delete);

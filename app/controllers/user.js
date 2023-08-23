@@ -5,8 +5,7 @@ const jwt = require("jsonwebtoken");
 
 exports.register = async (req, res) => {
   try {
-    const { name, birthDate, email, password, isMentor, isMentee, isAdmin } =
-      req.body;
+    const { name, birthDate, email, password, isMentor, isMentee, birthDate, isAdmin } = req.body;
 
     if (!name && !birthDate && !email && !password) {
       res.status(400).send("Necessario preencher todos os campos!");
@@ -26,6 +25,7 @@ exports.register = async (req, res) => {
         name,
         birthDate,
         email: email.toLowerCase(),
+          birthDate: birthDate,
         password: encryptedPassword,
         isMentor,
         isMentee,
@@ -60,7 +60,8 @@ exports.register = async (req, res) => {
 };
 exports.login = async (req, res) => {
   try {
-    const { email, password, isMentor, isMentee, isAdmin } = req.body;
+      console.log(req.body);
+      const { email, password, isMentor, isMentee, isAdmin } = req.body;
     if (!(email && password)) {
       res.status(400).send("Todo o login é necessario!");
     }
