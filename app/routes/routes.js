@@ -1,5 +1,6 @@
 module.exports = (app) => {
   const user = require("../controllers/user.js");
+  const tags = require("../controllers/controller_tags.js");
   const mentors = require("../controllers/controller_mentor.js");
   const mentorias = require("../controllers/controller_mentoria.js");
   const auth = require("../middleware/auth.js");
@@ -35,6 +36,15 @@ module.exports = (app) => {
 
   //Update
   router.put("/update", user.update);
+
+  //Login
+  router.post("/tags/register", tags.register);
+      
+  //findAll
+  router.get("/tags/findAll", tags.findAll);
+
+  //Update
+  router.put("/tags/decide", tags.decide);
 
   app.use("/api", router);
 };

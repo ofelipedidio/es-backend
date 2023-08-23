@@ -1,0 +1,89 @@
+const User = require("../models/user");
+const Tags = require("../models/model_tag");
+const bycrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+
+exports.register = async (req, res) => {
+  try {
+    const { nameTag, treated } = req.body;
+
+    if (!nameTag) {
+      res.status(400).send("Necessario preencher todos os campos!");
+    }
+
+    const oldTag = await findExistingTag(nameTag);
+    let user;
+    if (oldTag) {
+        res.status(409).send("Tag já existe!");
+      user = oldTag;
+    } else {
+
+      user = await Tags.create({
+        nameTag,
+        treated,
+      });
+    }
+
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+exports.delete = async (req, res) => {
+  const { nameTag } = req.body;
+  const user = await findExistingTag(nameTag);
+  if (user) {
+    user.findOneAndRemove({nameTag: nameTag});
+    res.status(200).send();
+  } else {
+    res.status(404).send("User Not Found!");
+  }
+};
+
+exports.findAll = (req, res) => {
+  findAllTags()
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res
+        .status(500)
+        .send({ message: err.message || "Erro ocorreu durante fetch!" });
+    });
+};
+
+exports.treat = async (req, res) => {
+  const { nameTag, treated } = req.body;
+  const user = await Tags.findOne({ nameTag });
+
+  if (!user) {
+    res.status(404).send("User not found!");
+  } else {
+    user.nameTag = nameTag;
+    user.treated = true;
+    await user.save();
+    res.status(200).json(user);
+  }
+};
+
+//criar função para 
+exports.decide = async (req, res) => {
+
+    // admin vai decidir se tag vai ser aprovada ou não,
+    // Caso seja vai chamar a função treat pra a tag em questão
+    // Caso não seja aceita, chama a função delete
+
+};
+
+// Foi necessario o uso de !=true ao invés ==false pois o mongoose aparentemente não salva os default nas tabelas
+async function findExistingTag(nameTag) {
+  return await Tags.findOne({ nameTag });
+}
+
+async function findAllTags() {
+  return await Tags.find();
+}
+
+
+
+
