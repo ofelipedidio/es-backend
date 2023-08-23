@@ -5,6 +5,7 @@ const Tags = mongoose.model(
     {
       nameTag: { type: String},
       treated: { type: Boolean, default: false },
+      isDeleted: { type: Boolean, default: false }
     },
     { timestamps: true }
   )

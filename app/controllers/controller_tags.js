@@ -26,15 +26,18 @@ exports.register = async (req, res) => {
 };
 
 exports.delete = async (req, res) => {
-  const { nameTag } = req.body;
-  const user = await findExistingTag(nameTag);
-  if (user) {
-    user.findOneAndRemove({nameTag: nameTag});
-    res.status(200).send();
+
+  const { nameTag, treated } = req.body;
+  const user = await Tags.findOne({ nameTag });
+  if (!user) {
+    res.status(404).send("User not found!");
   } else {
-    res.status(404).send("User Not Found!");
-  }
+    user.nameTag = nameTag;
+    user.isDeleted = true;
+    await user.save();
+    res.status(200).json(user);
 };
+}
 
 exports.findAll = (req, res) => {
   findAllTags()
@@ -63,7 +66,6 @@ exports.findAllUntreated = async (req, res) => {
 exports.treat = async (req, res) => {
   const { nameTag, treated } = req.body;
   const user = await Tags.findOne({ nameTag });
-
   if (!user) {
     res.status(404).send("User not found!");
   } else {
@@ -77,15 +79,15 @@ exports.treat = async (req, res) => {
 
 // Foi necessario o uso de !=true ao invés ==false pois o mongoose aparentemente não salva os default nas tabelas
 async function findExistingTag(nameTag) {
-  return await Tags.findOne({ nameTag });
+  return await Tags.findOne({ nameTag, isDeleted: false});
 }
 
 async function findAllTags() {
-  return await Tags.find( {treated: true });
+  return await Tags.find( {treated: true, isDeleted: false });
 }
 
 async function findAllUntreatedTags() {
-  return await Tags.find( {treated: false} );
+  return await Tags.find( {treated: false, isDeleted: false} );
 }
 
 

@@ -41,7 +41,7 @@ module.exports = (app) => {
   router.post("/tags/register", tags.register);
 
   //Login
-  router.post("/tags/delete", tags.delete);
+  router.post("/tags/deleting", tags.delete);
       
   //findAll
   router.get("/tags/findAll", tags.findAll);
