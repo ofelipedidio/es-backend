@@ -64,8 +64,7 @@ exports.register = async (req, res) => {
 
 function formatDate(date) {
     const yyyy = date.getFullYear();
-    // JavaScript's getMonth() method returns month from 0 to 11, so we add 1.
-        const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
     const dd = String(date.getDate()).padStart(2, '0');
     
     return `${yyyy}-${mm}-${dd}`;
