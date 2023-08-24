@@ -13,83 +13,60 @@ exports.generate = async (req, res) => {
   const end = new Date(req.body.end);
   console.log(start, end);
 
-  let qtd_usuario = null;
-  User.countDocuments({})
-    .catch((err) => {
-      console.log("Could not count users");
-    })
-    .then((count) => {
-      qtd_usuario = count;
-      console.log("Quantidade de Users ", count);
+  try {
+    const qtd_usuario = await User.countDocuments({});
+    console.log("Quantidade de Users ", qtd_usuario);
 
-      let qtd_mentorias = null;
-      Mentoria.countDocuments({
-        createdAt: {
-          $gte: start,
-          $lte: end,
-        },
-      })
-        .then((count) => {
-          qtd_mentorias = count;
-          console.log("Mentorias ", qtd_mentorias);
-          let qtd_usuario_tempo = null;
-          User.countDocuments({
-            createdAt: {
-              $gte: start,
-              $lte: end,
-            },
-          })
-            .then(async (count) => {
-              qtd_usuario_tempo = count;
-              console.log("Quantidade de User ", count);
-
-              let taxa_mentorias;
-
-              if (qtd_usuario_tempo == 0) {
-                taxa_mentorias = -1;
-              } else {
-                taxa_mentorias = (qtd_mentorias / qtd_usuario_tempo).toFixed(2);
-              }
-              console.log("Taxa de Users", taxa_mentorias);
-
-              // 4
-              let qtd_experiencias = -1;
-              await Tag.countDocuments({
-                createdAt: {
-                  $gte: start,
-                  $lte: end,
-                },
-                treated: true,
-              })
-                .then((count) => {
-                  console.log("Quantidade de Experiencias", count);
-                  qtd_experiencias = count;
-                })
-                .catch((err) => {});
-              console.log("Quantidade de Experiencias", qtd_experiencias);
-
-              let qtd_abs_experiencias = -1;
-              await Tag.countDocuments({ treated: true })
-                .then((count) => {
-                  qtd_abs_experiencias = count;
-                })
-                .catch((err) => {});
-
-              const relatorio = {
-                qtd_usuario: qtd_usuario,
-                qtd_mentorias: qtd_mentorias,
-                taxa_mentorias: taxa_mentorias,
-                qtd_experiencias: qtd_experiencias,
-                qtd_abs_experiencias: qtd_abs_experiencias,
-              };
-
-              console.log(relatorio);
-              res.status(200).send(relatorio);
-            })
-            .catch((err) => {});
-        })
-        .catch((err) => {
-          console.error(err);
-        });
+    const qtd_mentorias = await Mentoria.countDocuments({
+      createdAt: {
+        $gte: start,
+        $lte: end,
+      },
     });
+    console.log("Mentorias ", qtd_mentorias);
+
+    const qtd_usuario_tempo = await User.countDocuments({
+      createdAt: {
+        $gte: start,
+        $lte: end,
+      },
+    });
+    console.log("Quantidade de User ", qtd_usuario_tempo);
+
+    let taxa_mentorias;
+
+    if (qtd_usuario_tempo == 0) {
+      taxa_mentorias = -1;
+    } else {
+      taxa_mentorias = (qtd_mentorias / qtd_usuario_tempo).toFixed(2);
+    }
+    console.log("Taxa de Users", taxa_mentorias);
+
+    let qtd_experiencias = -1;
+    qtd_experiencias = await Tag.countDocuments({
+      createdAt: {
+        $gte: start,
+        $lte: end,
+      },
+      treated: true,
+    });
+    console.log("Quantidade de Experiencias", qtd_experiencias);
+
+    let qtd_abs_experiencias = -1;
+    qtd_abs_experiencias = await Tag.countDocuments({ treated: true });
+
+    const relatorio = {
+      qtd_usuario: qtd_usuario,
+      qtd_mentorias: qtd_mentorias,
+      taxa_mentorias: taxa_mentorias,
+      qtd_experiencias: qtd_experiencias,
+      qtd_abs_experiencias: qtd_abs_experiencias,
+    };
+
+    console.log(relatorio);
+    res.status(200).send(relatorio);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("An error occurred.");
+  }
 };
