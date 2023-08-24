@@ -4,7 +4,7 @@ const User = db.users;
 const Mentoria = db.mentorias;
 const Tag = db.tags;
 
-exports.generate = (req, res) => {
+exports.generate = async (req, res) => {
   console.log(
     "==========================comecou request============================================="
   );
@@ -39,7 +39,7 @@ exports.generate = (req, res) => {
               $lte: end,
             },
           })
-            .then((count) => {
+            .then(async (count) => {
               qtd_usuario_tempo = count;
               console.log("Quantidade de User ", count);
 
@@ -54,20 +54,22 @@ exports.generate = (req, res) => {
 
               // 4
               let qtd_experiencias = -1;
-              Tag.countDocuments({
+              await Tag.countDocuments({
                 createdAt: {
                   $gte: start,
                   $lte: end,
                 },
+                treated: true,
               })
                 .then((count) => {
-                  console.log(count);
+                  console.log("Quantidade de Experiencias", count);
                   qtd_experiencias = count;
                 })
                 .catch((err) => {});
+              console.log("Quantidade de Experiencias", qtd_experiencias);
 
               let qtd_abs_experiencias = -1;
-              Tag.countDocuments({})
+              await Tag.countDocuments({ treated: true })
                 .then((count) => {
                   qtd_abs_experiencias = count;
                 })
@@ -81,6 +83,7 @@ exports.generate = (req, res) => {
                 qtd_abs_experiencias: qtd_abs_experiencias,
               };
 
+              console.log(relatorio);
               res.status(200).send(relatorio);
             })
             .catch((err) => {});
